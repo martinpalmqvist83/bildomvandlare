@@ -1,0 +1,70 @@
+
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bildomvandlare</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+    }
+    canvas {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h2>Omvandla bild</h2>
+  <input type="file" id="upload" accept="image/*" />
+  <div id="downloads"></div>
+
+  <canvas id="canvas"></canvas>
+
+  <script>
+    const upload = document.getElementById('upload');
+    const downloads = document.getElementById('downloads');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    upload.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const img = new Image();
+      img.onload = () => {
+        processImage(img, 290, 113, 'left');
+        processImage(img, 1004, 709, 'center');
+      };
+      img.src = URL.createObjectURL(file);
+    });
+
+    function processImage(img, targetW, targetH, align) {
+      canvas.width = targetW;
+      canvas.height = targetH;
+
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, targetW, targetH);
+
+      const scale = Math.min(targetW / img.width, targetH / img.height);
+      const newW = img.width * scale;
+      const newH = img.height * scale;
+
+      let x = 0;
+      if (align === 'center') {
+        x = (targetW - newW) / 2;
+      }
+
+      const y = (targetH - newH) / 2;
+      ctx.drawImage(img, x, y, newW, newH);
+
+      const link = document.createElement('a');
+      link.href = canvas.toDataURL('image/jpeg', 0.95);
+      link.download = `output_${targetW}x${targetH}.jpg`;
+      link.textContent = `Ladda ner ${targetW}x${targetH}`;
+      link.style.display = 'block';
+      downloads.appendChild(link);
+    }
+  </script>
+</body>
+</html>
